@@ -4,18 +4,21 @@ import fastify from 'fastify'
 import { memoriesRoutes } from './routes/memory'
 import cors from '@fastify/cors'
 import jwt from '@fastify/jwt'
-
-import { PrismaClient } from '@prisma/client'
+import multipart from '@fastify/multipart'
 import { authRoutes } from './routes/auth'
+import { uploadRoutes } from './routes/upload'
+import fastifyStatic from '@fastify/static'
+import { resolve } from 'path'
 
 const app = fastify()
-const prisma = new PrismaClient()
 
-app.get('/users', async () => {
-  const users = await prisma.user.findMany()
+app.register(multipart)
 
-  return users
+app.register(fastifyStatic, {
+  root: resolve(__dirname, '../uploads'),
+  prefix: '/uploads',
 })
+// torna diretórios públicos
 
 app.register(cors, {
   origin: true,
@@ -25,8 +28,9 @@ app.register(jwt, {
   secret: 'spacetime',
 })
 
-app.register(memoriesRoutes)
 app.register(authRoutes)
+app.register(uploadRoutes)
+app.register(memoriesRoutes)
 
 app
   .listen({

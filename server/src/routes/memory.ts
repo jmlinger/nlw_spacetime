@@ -6,6 +6,7 @@ export async function memoriesRoutes(app: FastifyInstance) {
   app.addHook('preHandler', async (request) => {
     await request.jwtVerify()
   })
+
   app.get('/memories', async (request) => {
     const memories = await prisma.memory.findMany({
       where: {
@@ -60,7 +61,7 @@ export async function memoriesRoutes(app: FastifyInstance) {
         content,
         coverUrl,
         isPublic,
-        userId: 'ea3bef27-b139-47ab-bbe3-9fdd6410e972',
+        userId: request.user.sub,
       },
     })
 
